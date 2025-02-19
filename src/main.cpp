@@ -40,18 +40,26 @@ ez::Drive chassis(
  ez::tracking_wheel horiz_tracker(9, 2, .5);  // This tracking wheel is perpendicular to the drive wheels
  ez::tracking_wheel vert_tracker( 7, 2, 2.0);   // This tracking wheel is parallel to the drive wheels
 
-/**
- * Runs initialization code. This occurs as soon as the program is started.
- *
- * All other competition modes are blocked by initialize; it is recommended
- * to keep execution time for this mode under a few seconds.
- */
+double targetAngle = 0;
+double currentAngle =0;
+double kp = 0.5;
+
+
+
+void liftcontrol (){
+
+  double  error = targetAngle - lady.getPosition();
+  double output = kp* error;
+  leftlady.move(output);
+}
 void initialize() {
   // Print our branding over your terminal :D
   ez::ez_template_print();
 
   pros::delay(500);  // Stop the user from doing anything while legacy ports configure
 
+
+  pros::task liftcontroltask(liftcontrol)
   // Look at your horizontal tracking wheel and decide if it's in front of the midline of your robot or behind it
   //  - change `back` to `front` if the tracking wheel is in front of the midline
   //  - ignore this if you aren't using a horizontal tracker
@@ -335,6 +343,10 @@ leftlady.move_velocity(30);
 
                 b=0;
             }
+
+
+    } if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)){
+      targetAngle = 330;
     }
     }
     if (master.get_digital(DIGITAL_B) && master.get_digital(DIGITAL_DOWN))
